@@ -1,0 +1,25 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  KUBE_CLUSTER: "development"
+  KUBE_NAMESPACE: "chatbot-ui"
+  CONTAINER_REGISTRY: "localhost:5000"
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list
+    silent: true
+
+  setup:
+    desc: "Setup"
+    cmds:
+      - ./kind-with-registry.sh
+
+  teardown:
+    desc: "Teardown"
+    cmds:
+      - docker stop kind-registry && docker rm kind-registry

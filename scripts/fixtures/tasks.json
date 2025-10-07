@@ -1,0 +1,38 @@
+[
+  {
+    "uid": 1,
+    "indexUid": "movies",
+    "status": "succeeded",
+    "type": "indexCreation",
+    "canceledBy": null,
+    "details": {
+      "primaryKey": "id"
+    },
+    "error": null,
+    "duration": "PT0.002S",
+    "enqueuedAt": "2025-01-01T12:00:00Z",
+    "startedAt": "2025-01-01T12:00:01Z",
+    "finishedAt": "2025-01-01T12:00:02Z"
+  },
+  {
+    "uid": 2,
+    "indexUid": "books",
+    "status": "failed",
+    "type": "documentAdditionOrUpdate",
+    "canceledBy": null,
+    "details": {
+      "receivedDocuments": 10,
+      "indexedDocuments": 8
+    },
+    "error": {
+      "message": "Invalid document format",
+      "code": "invalid_document",
+      "type": "invalid_request",
+      "link": "https://docs.meilisearch.com/errors#invalid_document"
+    },
+    "duration": "PT0.005S",
+    "enqueuedAt": "2025-01-02T12:00:00Z",
+    "startedAt": "2025-01-02T12:00:01Z",
+    "finishedAt": "2025-01-02T12:00:05Z"
+  }
+]

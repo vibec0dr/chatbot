@@ -1,0 +1,1 @@
+FROM ghcr.io/danny-avila/librechat-rag-api-dev-lite:v0.6.0

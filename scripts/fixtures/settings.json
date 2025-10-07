@@ -1,0 +1,26 @@
+{
+  "rankingRules": [
+    "typo",
+    "words",
+    "proximity",
+    "attribute",
+    "sort",
+    "exactness"
+  ],
+  "distinctAttribute": null,
+  "searchableAttributes": ["title", "description", "author"],
+  "displayedAttributes": ["title", "description", "author", "release_date"],
+  "filterableAttributes": ["genre", "release_year"],
+  "sortableAttributes": ["release_date", "rating"],
+  "stopWords": ["the", "a", "of"],
+  "synonyms": {
+    "hp": ["harry potter"]
+  },
+  "typoTolerance": {
+    "enabled": true,
+    "minWordSizeForTypos": {
+      "oneTypo": 5,
+      "twoTypos": 9
+    }
+  }
+}

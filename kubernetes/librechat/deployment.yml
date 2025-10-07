@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: librechat
+  namespace: chatbot-ui
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: librechat
+  template:
+    metadata:
+      labels:
+        app: librechat
+    spec:
+      containers:
+        - name: librechat
+          image: localhost:5000/librechat:1.0.0
+          ports:
+            - containerPort: 3080
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: MONGO_URI
+              value: "mongodb://mongodb:27017/LibreChat"
+            - name: MEILI_HOST
+              value: "http://meilisearch:7700"
+            - name: RAG_PORT
+              value: "8000"
+            - name: RAG_API_URL
+              value: "http://rag-api:8000"
+            - name: DOTENV_CONFIG_PATH
+              value: "/app/config/.env"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/.env
+              subPath: .env
+              readOnly: true
+            - name: config-volume
+              mountPath: /app/librechat.yaml
+              subPath: librechat.yaml
+              readOnly: true
+            - name: librechat-data
+              mountPath: /app/client/public/images
+              subPath: images
+            - name: librechat-data
+              mountPath: /app/uploads
+              subPath: uploads
+            - name: librechat-data
+              mountPath: /app/api/logs
+              subPath: logs
+      volumes:
+        - name: config-volume
+          hostPath:
+            path: /app
+            type: Directory
+        - name: librechat-data
+          persistentVolumeClaim:
+            claimName: librechat-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: librechat-data
+  namespace: chatbot-ui
+spec:
+  resources:
+    requests:
+      storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
