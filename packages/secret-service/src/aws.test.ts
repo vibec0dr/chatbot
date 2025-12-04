@@ -1,37 +1,42 @@
-import { describe, it } from "node:test";
-import assert from "node:assert";
-// CRITICAL FIX (Already Applied): The '.js' extension is required for Node.js 
-// native ESM resolution when importing from a local '.ts' file.
-import { CredentialProvider, type Env } from "./aws.js"; 
+import { describe, it, expect } from "vitest";
+import { createAwsCredentials, type AwsEnv, awsEnvSchema } from "./aws.js";
 
 describe("AWS Secret Service", () => {
-  // NOTICE: No beforeEach or afterEach needed!
-  // Because we aren't mutating the global process.env, there is nothing to "reset".
-
-  it("should correctly extract the AWS credential from the injected environment", () => {
-    // 1. Arrange: Create a plain object that mimics your validated environment
-    // The Env type now guarantees AWS_ACCESS_KEY_ID is present.
-    const mockEnv: Env = {
+  it("extracts AWS credentials from the injected environment", () => {
+    const mockEnv: AwsEnv = {
       AWS_ACCESS_KEY_ID: "testing-access-key-123",
+      AWS_SECRET_ACCESS_KEY: "testing-secret-abc",
+      AWS_REGION: "us-east-1",
     };
 
-    // 2. Act: Pass the mock object directly to the function
-    const provider = CredentialProvider(mockEnv);
+    const credentials = createAwsCredentials(mockEnv);
 
-    // 3. Assert: Check the result
-    assert.strictEqual(provider.accessKeyId, "testing-access-key-123");
+    expect(credentials.accessKeyId).toBe("testing-access-key-123");
+    expect(credentials.secretAccessKey).toBe("testing-secret-abc");
+    expect(credentials.region).toBe("us-east-1");
   });
 
-  it("should handle a different environment configuration without side effects", () => {
-    // 1. Arrange: A completely different "environment"
-    const productionMock: Env = {
-      AWS_ACCESS_KEY_ID: "prod-key-999",
+  it("handles a different environment configuration without side effects", () => {
+    const prodEnv: AwsEnv = {
+      AWS_ACCESS_KEY_ID: "prod-access-key-999",
+      AWS_SECRET_ACCESS_KEY: "prod-secret-xyz",
+      AWS_REGION: "eu-west-2",
     };
 
-    // 2. Act
-    const provider = CredentialProvider(productionMock);
+    const credentials = createAwsCredentials(prodEnv);
 
-    // 3. Assert
-    assert.strictEqual(provider.accessKeyId, "prod-key-999");
+    expect(credentials.accessKeyId).toBe("prod-access-key-999");
+    expect(credentials.secretAccessKey).toBe("prod-secret-xyz");
+    expect(credentials.region).toBe("eu-west-2");
+  });
+
+  it("throws an error for invalid environment using Zod validation", () => {
+    const invalidEnv = {
+      AWS_ACCESS_KEY_ID: "",
+      AWS_SECRET_ACCESS_KEY: "secret",
+      AWS_REGION: "us-east-1",
+    };
+
+    expect(() => awsEnvSchema.parse(invalidEnv)).toThrow();
   });
 });

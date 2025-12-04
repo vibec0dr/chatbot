@@ -27,7 +27,7 @@ export function createAwsCredentials(env: AwsEnv) {
   };
 }
 
-// Cached loader
+// Cached loader (uses process.env)
 export const loadAwsCredentials = createCachedLoader(() => {
   const validatedEnv = awsEnvSchema.parse(process.env);
   return createAwsCredentials(validatedEnv);
