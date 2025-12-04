@@ -1,13 +1,6 @@
 import "dotenv/config";
+import { loadAwsCredentials } from "@chatbot-ui/secret-service";
 
-const hello = (msg: string) => {
-  console.log(`Hello, ${msg}!`);
+const awsCredentials = loadAwsCredentials();
+console.log("AWS", awsCredentials.accessKeyId, awsCredentials.region);
 
-  console.log("Meilisearch CLI is running...");
-  console.log(`Meilisearch Host: ${process.env.MEILISEARCH_HOST}`);
-  console.log(`Meilisearch API Key: ${process.env.MEILISEARCH_API_KEY}`);
-};
-
-(() => {
-  hello("Meilisearch User");
-})();
