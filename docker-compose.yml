@@ -6,8 +6,10 @@ services:
     depends_on:
       - mongodb
       - rag_api
-      - redis
-    image: localhost:5000/librechat:1.0.0
+      # - redis
+    build:
+      context: ./docker/librechat
+      dockerfile: Dockerfile
     restart: always
     user: "${UID}:${GID}"
     extra_hosts:
@@ -33,7 +35,9 @@ services:
 
   mongodb:
     container_name: chat-mongodb
-    image: localhost:5000/mongodb:1.0.0
+    build:
+      context: ./docker/mongodb
+      dockerfile: Dockerfile
     restart: always
     user: "${UID}:${GID}"
     volumes:
@@ -42,19 +46,23 @@ services:
 
   meilisearch:
     container_name: chat-meilisearch
-    image: localhost:5000/meilisearch:1.0.0
+    build:
+      context: ./docker/meilisearch
+      dockerfile: Dockerfile
     restart: always
     user: "${UID}:${GID}"
-    environment:
-      - MEILI_HOST=http://meilisearch:7700
-      - MEILI_NO_ANALYTICS=true
-      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+    env_file:
+      - .env 
     volumes:
-      - ./data/meilisearch:/meili_data
+      - meili_data:/meili_data
+    ports:
+      - "7700:7700"
 
   vectordb:
     container_name: vectordb
-    image: localhost:5000/pgvectordb:1.0.0
+    build:
+      context: ./docker/pgvectordb
+      dockerfile: Dockerfile
     environment:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
@@ -68,7 +76,9 @@ services:
 
   rag_api:
     container_name: rag_api
-    image: localhost:5000/rag:1.0.0
+    build:
+      context: ./docker/rag
+      dockerfile: Dockerfile
     environment:
       - DB_HOST=vectordb
       - RAG_PORT=${RAG_PORT:-8000}
@@ -86,7 +96,9 @@ services:
 
   ollama:
     container_name: ollama
-    image: localhost:5000/ollama:1.0.0
+    build:
+      context: ./docker/ollama
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "11434:11434"
@@ -105,7 +117,9 @@ services:
 
   ollama-init:
     container_name: ollama-init
-    image: localhost:5000/ollama:1.0.0
+    build:
+      context: ./docker/ollama
+      dockerfile: Dockerfile
     restart: "no"
     user: "${UID}:${GID}"
     depends_on:
@@ -118,13 +132,17 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command: ["ollama pull tinyllama"]
 
-  redis:
-    container_name: chat-redis
-    image: localhost:5000/redis:1.0.0
-    restart: always
-    user: "${UID}:${GID}"
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./data/redis:/data
-    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+  # redis:
+  #   container_name: chat-redis
+  #   build:
+  #     context: ./docker/redis
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   user: "${UID}:${GID}"
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - ./data/redis:/data
+  #   command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+volumes:
+  meili_data:

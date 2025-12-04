@@ -1,4 +1,4 @@
-const { describe, beforeEach, it } = require("node:test");
+const { describe, it } = require("node:test");
 const { buildRequestOptions } = require("./httpUtils");
 const assert = require("node:assert");
 

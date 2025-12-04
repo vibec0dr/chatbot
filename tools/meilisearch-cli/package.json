@@ -1,0 +1,20 @@
+{
+  "name": "@chatbot-ui/meilisearch-cli",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "meilisearch-cli": "bin/meilisearch-cli.js"
+  },
+  "scripts": {
+    "transpile": "tsc"
+  },
+  "dependencies": {
+    "@chatbot-ui/secret-service": "workspace:*"
+  },
+  "packageManager": "pnpm@10.24.0"
+}

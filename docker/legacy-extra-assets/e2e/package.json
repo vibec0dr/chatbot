@@ -1,0 +1,16 @@
+{
+  "name": "@docker-tools/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Playwright E2E tests for extras/tools packages",
+  "scripts": {
+    "test": "playwright test",
+    "test:ci": "playwright test --reporter=list"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "typescript": "^5.5.2",
+    "ts-node": "^10.9.1"
+  }
+}

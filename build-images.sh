@@ -22,6 +22,8 @@ build_and_push() {
     local tag="${REGISTRY}/${service}:${VERSION}"
     
     echo "Building ${service}..."
+    # ensure .docker/bin exists so COPY in Dockerfile can safely copy extras (may be empty)
+    mkdir -p .docker/bin
     docker build -t ${tag} -f ${dockerfile} .
     
     if [ $? -eq 0 ]; then

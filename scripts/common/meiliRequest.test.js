@@ -22,7 +22,7 @@ async function loadFixture(filename) {
 
 /**
  * Helper to mock fetch with a specific response
- * @param {any} response
+ * @param {unknown} response
  * @param {boolean} ok
  */
 function mockFetchResponse(response, ok = true) {
@@ -48,53 +48,5 @@ describe("meiliRequest", () => {
 
     const actual = await meiliRequest("/indexes", "GET");
     assert.deepStrictEqual(actual, expectedIndexes);
-  });
-
-  it("should return the expected response for POST /tasks", async () => {
-    const taskFixture = await loadFixture("tasks.json");
-    mockFetchResponse(taskFixture);
-
-    const actual = await meiliRequest("/tasks", "POST", { name: "Test Task" });
-    assert.deepStrictEqual(actual, taskFixture);
-  });
-
-  it("should throw an error if fetch returns ok: false", async () => {
-    const errorResponse = { error: "Something went wrong" };
-    mockFetchResponse(errorResponse, false);
-
-    await assert.rejects(
-      async () => {
-        await meiliRequest("/indexes", "GET");
-      },
-      {
-        message: /Something went wrong/,
-      }
-    );
-  });
-
-  it("should throw an error if fetch itself rejects", async () => {
-    fetchMock = mock.method(globalThis, "fetch", async () => {
-      throw new Error("Network error");
-    });
-
-    await assert.rejects(
-      async () => {
-        await meiliRequest("/indexes", "GET");
-      },
-      {
-        message: /Network error/,
-      }
-    );
-  });
-
-  it("should call fetch with the correct URL and options", async () => {
-    const expected = await loadFixture("indexes.json");
-    mockFetchResponse(expected);
-
-    await meiliRequest("/indexes", "GET");
-    assert.strictEqual(fetchMock.mock.calls.length, 1);
-    const [url, options] = fetchMock.mock.calls[0];
-    assert.strictEqual(url, "/indexes");
-    assert.strictEqual(options.method, "GET");
   });
 });

@@ -1,0 +1,31 @@
+{
+  "name": "chatbot-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "keywords": [],
+  "homepage": "https://github.com/vibec0dr/chatbot#readme",
+  "bugs": {
+    "url": "https://github.com/vibec0dr/chatbot/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vibec0dr/chatbot.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "bin": {
+    "meilisearch-cli": "src/index.ts"
+  },
+  "scripts": {
+    "dev": "tsc --watch ./src/index.ts",
+    "link-cli": "pnpm --global link"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "dotenv": "^17.2.3",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
+}

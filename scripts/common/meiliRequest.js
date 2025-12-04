@@ -2,7 +2,8 @@ const { buildRequestOptions } = require("./httpUtils");
 
 /**
  *
- * @param {*} endpoint
+ * @param {string} endpoint
+ * @param {"GET"|"POST"|"PUT"|"PATCH"|"DELETE"} method
  */
 async function meiliRequest(endpoint, method, body) {
   const host = process.env.MEILI_HOST || "http://localhost:7700";

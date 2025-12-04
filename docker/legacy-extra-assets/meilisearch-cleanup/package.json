@@ -1,0 +1,36 @@
+{
+  "name": "@docker-tools/meilisearch-cleanup",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Meilisearch cleanup CLI — deletes stale documents",
+  "bin": {
+    "meili-cleanup": "./dist/index.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "imports": {
+    "#meili/*": "./dist/*"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:bundle": "node ./scripts/package-standalone.mjs bundle",
+    "build:standalone": "node ./scripts/package-standalone.mjs native",
+    "dev": "tsc -w -p tsconfig.json",
+    "start": "node ./dist/index.js",
+    "test": "node --test --test-reporter=spec",
+    "lint": "echo 'no lint configured' && exit 0"
+  },
+  "dependencies": {
+    "mongodb": "^5.9.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.2",
+    "@types/node": "^20.9.1",
+    "esbuild": "^0.18.18"
+  }
+}

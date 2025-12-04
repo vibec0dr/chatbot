@@ -1,0 +1,20 @@
+{
+  "name": "meili-curator",
+  "entry": "./dist/index.js",
+  "bundle": {
+    "enabled": true,
+    "out": "./build/meili-curator.js",
+    "format": "esm",
+    "target": "node24",
+    "external": []
+  },
+  "assets": [
+    "README.md",
+    "./dist/**/*"
+  ],
+  "docker": {
+    "imagePath": "/usr/local/bin/meili-curator",
+    "copyFrom": "./build/meili-curator.js",
+    "chmod": "+x"
+  }
+}

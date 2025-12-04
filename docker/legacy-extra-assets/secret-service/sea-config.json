@@ -1,0 +1,25 @@
+{
+  "name": "secret-service",
+  "entry": "./dist/index.js",
+  "bundle": {
+    "enabled": true,
+    "out": "./build/secret-service.js",
+    "format": "esm",
+    "target": "node24",
+    "external": []
+  },
+  "native": {
+    "enabled": true,
+    "targets": ["linux-x64"],
+    "binaryName": "secret-service"
+  },
+  "assets": [
+    "README.md",
+    "./dist/**/*"
+  ],
+  "docker": {
+    "imagePath": "/usr/local/bin/secret-service",
+    "copyFrom": "./build/secret-service.js",
+    "chmod": "+x"
+  }
+}

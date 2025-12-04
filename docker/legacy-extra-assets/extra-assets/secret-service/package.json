@@ -1,0 +1,27 @@
+{
+  "name": "@image-extras/secret-service",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Secret service CLI — manage secrets for images and tools",
+  "bin": {
+    "secret-service": "./dist/index.js"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:bundle": "node ./scripts/package-standalone.mjs bundle",
+    "start": "node ./dist/index.js",
+    "test": "node --test --test-reporter=spec"
+  },
+  "dependencies": {
+    "mongodb": "^5.9.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.2",
+    "@types/node": "^20.9.1",
+    "esbuild": "^0.18.18"
+  }
+}

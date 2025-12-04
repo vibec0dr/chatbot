@@ -17,7 +17,7 @@ async function read(path: string): Promise<Result<string, Error>> {
 }
 
 async function main() {
-  const result = await read(".envrc");
+  const result = await read(".env");
   if (result.ok) {
     console.log("File content from Result:", result.value);
   } else {
@@ -25,14 +25,16 @@ async function main() {
   }
 }
 
-main()
-  .then(() => {
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("Error in entrypoint:", error);
-    process.exit(1);
-  })
-  .finally(() => {
-    console.log("Finished executing entrypoint script.");
-  });
+async () => {
+  try {
+    await main();
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+      process.exitCode = 1;
+    }
+    throw error;
+  } finally {
+    process.exitCode = 0;
+  }
+};
