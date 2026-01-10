@@ -1,76 +1,78 @@
-import { z } from "zod";
+import { readdir, readFile } from "node:fs/promises";
+import type { z } from "zod/mini";
 
-// 1. Define the generic types used by the Factory
+export type SecretStrategyType = "secret-sidecar" | "dotenv";
 
-// T is the type inferred from the Zod schema (e.g., AwsEnv)
-export type SecretSourceStrategy<T> = {
-  name: string;
-  // Load returns a partial environment object or null if it fails to find secrets
-  load: () => Promise<Partial<T> | null>;
+export type SecretStrategy<T> = {
+    readonly strategyType: SecretStrategyType;
+    load: () => Promise<Readonly<Record<string, unknown>> | null>;
 };
 
-// Use generics to properly type the factory and the final return value
-export type LoaderFactory = <
-  T extends z.ZodRawShape, // The Zod schema shape
-  R // The return type of the final factory function
->(
-  schema: z.ZodObject<T>,
-  strategies: SecretSourceStrategy<z.infer<z.ZodObject<T>>>[],
-  // The factory function converts validated environment to the final object (R)
-  factory: (validatedEnv: z.infer<z.ZodObject<T>>) => R
-) => () => Promise<R>; // The returned function is an async function that returns R
+export type Result<T, E = Error> = { value: T; error: null } | { value: null; error: E };
 
-/**
- * 2. The Generic Secret Loader
- * * This function creates a standardized loader function for any service.
- * It implements the Chain of Responsibility pattern: executes strategies in order,
- * validates the first successful result, and uses the factory function to create the final object.
- * * @param schema The Zod schema specific to the service (e.g., awsEnvSchema).
- * @param strategies An array of SecretSourceStrategy objects.
- * @param factory The final function to convert the validated environment into a structured object.
- * @returns An async function that runs the loading and validation process, returning the type R.
- */
-export const createSecretLoader: LoaderFactory =
-  (schema, strategies, factory) => async () => {
-    type EnvType = z.infer<typeof schema>;
-
-    let rawEnv: Partial<EnvType> | null = null;
-    let sourceName: string = "Unknown Source";
-
-    // Chain of Responsibility: Iterate through strategies
+export async function secretLoaderContext<S extends z.ZodMiniObject, R>(
+    schema: S,
+    strategies: SecretStrategy<z.infer<S>>[],
+    factory: (validated: z.infer<S>) => R
+): Promise<Result<R, Error>> {
     for (const strategy of strategies) {
-      rawEnv = await strategy.load();
+        try {
+            console.log(`[Step 1] Attempting to load: ${strategy.strategyType}`);
+            const raw = await strategy.load();
 
-      // Check if the strategy returned a truthy object AND that object contains keys.
-      if (rawEnv && Object.keys(rawEnv).length > 0) {
-        sourceName = strategy.name;
-        break;
-      }
+            if (!raw || Object.keys(raw).length === 0) {
+                console.log(`[Step 1] No data for ${strategy.strategyType}. Continuing...`);
+                continue;
+            }
+
+            const validated = schema.parse(raw);
+            return { value: factory(validated), error: null };
+
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error(`Strategy ${strategy.strategyType} failed: ${error.message}`);
+                continue;
+            }
+
+            console.error(`Strategy ${strategy.strategyType} failed with a generic error`);
+        }
     }
 
-    if (!rawEnv || Object.keys(rawEnv).length === 0) {
-      // No strategy succeeded in loading any data
-      throw new Error(
-        `Configuration Error: Could not load required secrets from any defined source.`
-      );
+    return {
+        value: null,
+        error: new Error("Could not load any secrets from any provided strategy")
+    };
+}
+
+export function secretSidecarStrategy<T>(path: string): SecretStrategy<T> {
+    return {
+        strategyType: "secret-sidecar",
+        load: async () => {
+            try {
+                const files = await readdir(path)
+                const secrets: Record<string, unknown> = {};
+
+                for (const file of files) {
+                    const contents = await readFile(file, "utf-8")
+                    secrets[file] = contents.trim();
+                }
+
+                return secrets;
+
+            } catch (error) {
+                throw error;
+            }
+        }
     }
 
-    // Validate the raw data obtained from the successful strategy.
-    try {
-      // Zod's parse function inherently acts as a runtime type guard
-      const validatedEnv = schema.parse(rawEnv);
-      console.log(
-        `[Secret Loader] Credentials successfully validated from ${sourceName}.`
-      );
+}
 
-      // The validatedEnv is guaranteed to be EnvType, so we pass it to the factory.
-      return factory(validatedEnv as EnvType);
-    } catch (error) {
-      // Throw a specific error if validation fails.
-      const errorMessage =
-        error instanceof Error ? error.message : "Validation failed.";
-      throw new Error(
-        `Invalid Configuration loaded from ${sourceName}: ${errorMessage}`
-      );
+export function dotenvStrategy<T>(): SecretStrategy<T> {
+    return {
+        strategyType: "dotenv",
+        load: async () => {
+            return { ...process.env }
+        }
     }
-  };
+
+}
